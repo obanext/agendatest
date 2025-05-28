@@ -14,11 +14,14 @@
 <body class="bg-white text-black">
   <div class="w-full bg-orange-500 text-white px-6 py-3 flex justify-between items-center">
     <h1 class="text-2xl font-extrabold">week<span class="font-normal">agenda</span></h1>
-    <div id="time" class="text-lg font-bold"></div>
+    <div class="flex gap-4 items-center">
+      <div id="time" class="text-lg font-bold"></div>
+      <div class="text-lg font-bold">1/2</div>
+    </div>
   </div>
 
   <div id="agenda" class="max-w-6xl mx-auto divide-y divide-orange-200">
-    <!-- Entries -->
+    <!-- Agenda items komen hier -->
   </div>
 
   <script>
@@ -36,8 +39,8 @@
       const res = await fetch("/api/agenda");
       const text = await res.text();
       const xml = new DOMParser().parseFromString(text, "application/xml");
-
       const results = xml.querySelectorAll("result");
+
       const container = document.getElementById("agenda");
 
       results.forEach(result => {
@@ -49,22 +52,20 @@
         const date = new Date(startRaw);
         const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
         const dagNum = date.getDate().toString().padStart(2, "0");
-        const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toUpperCase();
+        const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
         const tijd = date.toLocaleTimeString("nl-NL", {
           hour: "2-digit",
           minute: "2-digit"
         }).replace(":", ".");
 
         const row = document.createElement("div");
-        row.className = "grid grid-cols-[100px_1fr_70px] items-center px-6 py-3 gap-4";
+        row.className = "grid grid-cols-[110px_60px_1fr_60px] items-center px-6 py-3 gap-4";
 
         row.innerHTML = `
-          <div class="text-center">
-            <div class="text-[15px] lowercase">${dag}</div>
-            <div class="bg-black text-white text-sm font-bold py-1 mt-1 leading-none">
-              <div class="text-[16px]">${dagNum}</div>
-              <div class="text-[10px] uppercase">${maand}</div>
-            </div>
+          <div class="text-[15px] lowercase">${dag}</div>
+          <div class="bg-black text-white text-sm font-bold py-1 leading-none text-center">
+            <div class="text-[16px]">${dagNum}</div>
+            <div class="text-[10px] uppercase">${maand}</div>
           </div>
           <div>
             <div class="text-[17px] font-bold leading-tight">${title}</div>
