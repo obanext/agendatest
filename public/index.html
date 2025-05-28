@@ -3,39 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OBA Agenda Javaplein</title>
+  <title>Weekagenda OBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <div class="max-w-3xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Agenda OBA Javaplein (deze week)</h1>
-    <ul id="agenda-list" class="space-y-4"></ul>
+<body class="bg-white text-black font-sans">
+  <div class="w-full bg-orange-500 text-white px-6 py-3 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">week<span class="font-normal">agenda</span></h1>
+    <div class="flex gap-6 items-center">
+      <div id="time" class="font-bold text-lg"></div>
+    </div>
+  </div>
+
+  <div id="agenda" class="max-w-5xl mx-auto divide-y divide-orange-200">
+    <!-- Entries injected here -->
   </div>
 
   <script>
+    function updateTime() {
+      const now = new Date();
+      const hh = now.getHours().toString().padStart(2, '0');
+      const mm = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById("time").textContent = `${hh}:${mm}`;
+    }
+
+    updateTime();
+    setInterval(updateTime, 60000);
+
     async function fetchAgenda() {
       const res = await fetch("/api/agenda");
-      const text = await res.text();
+      const xmlText = await res.text();
       const parser = new DOMParser();
-      const xml = parser.parseFromString(text, "application/xml");
-
+      const xml = parser.parseFromString(xmlText, "application/xml");
       const results = xml.querySelectorAll("result");
-      const list = document.getElementById("agenda-list");
+
+      const list = document.getElementById("agenda");
 
       results.forEach(result => {
         const title = result.querySelector("title")?.textContent || "Geen titel";
-        const datumStart = result.querySelector("datum")?.getAttribute("start") || "";
-        const datum = datumStart.split("T")[0];
+        const summary = result.querySelector("summary")?.textContent || "";
+        const startRaw = result.querySelector("datum")?.getAttribute("start");
+        if (!startRaw) return;
 
-        const li = document.createElement("li");
-        li.className = "p-4 bg-white rounded shadow";
+        const date = new Date(startRaw);
+        const day = date.toLocaleDateString("nl-NL", { weekday: "long" });
+        const dayNum = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleDateString("nl-NL", { month: "short" });
+        const time = date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
 
-        li.innerHTML = `
-          <div class="text-lg font-semibold">${title}</div>
-          <div class="text-sm text-gray-600">Datum: ${datum}</div>
+        const entry = document.createElement("div");
+        entry.className = "grid grid-cols-[100px_1fr_60px] gap-4 items-center py-4 px-6";
+
+        entry.innerHTML = `
+          <div class="text-center">
+            <div class="text-sm lowercase">${day}</div>
+            <div class="bg-black text-white text-sm font-bold leading-none py-1 mt-1">
+              <div>${dayNum}</div>
+              <div class="uppercase text-[10px]">${month}</div>
+            </div>
+          </div>
+          <div>
+            <div class="font-bold">${title}</div>
+            <div class="text-orange-500 text-sm">${summary}</div>
+          </div>
+          <div class="text-right font-bold">${time}</div>
         `;
 
-        list.appendChild(li);
+        list.appendChild(entry);
       });
     }
 
