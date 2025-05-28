@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OBA Agenda Javaplein</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-3xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">Agenda OBA Javaplein (deze week)</h1>
+    <ul id="agenda-list" class="space-y-4"></ul>
+  </div>
+
+  <script>
+    async function fetchAgenda() {
+      const res = await fetch("/api/agenda");
+      const text = await res.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, "application/xml");
+
+      const results = xml.querySelectorAll("result");
+      const list = document.getElementById("agenda-list");
+
+      results.forEach(result => {
+        const title = result.querySelector("title")?.textContent || "Geen titel";
+        const datumStart = result.querySelector("datum")?.getAttribute("start") || "";
+        const datum = datumStart.split("T")[0];
+
+        const li = document.createElement("li");
+        li.className = "p-4 bg-white rounded shadow";
+
+        li.innerHTML = `
+          <div class="text-lg font-semibold">${title}</div>
+          <div class="text-sm text-gray-600">Datum: ${datum}</div>
+        `;
+
+        list.appendChild(li);
+      });
+    }
+
+    fetchAgenda();
+  </script>
+</body>
+</html>
