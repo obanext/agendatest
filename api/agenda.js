@@ -1,11 +1,13 @@
 export default async function handler(req, res) {
   const key = process.env.OBA_API_KEY;
-  const { when = "b_thisweek", where = "", page = "1" } = req.query;
-
+  const { when = "b_thisweek", where = "" } = req.query;
   const wanneerFacet = `Wanneer(${when})`;
-  const branchParam = where !== "" ? `&branch=${encodeURIComponent(where)}` : "";
+  let branchParam = "";
+  if (where !== "") {
+    branchParam = `&branch=${encodeURIComponent(where)}`;
+  }
 
-  const url = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&authorization=${key}&facet=${wanneerFacet}${branchParam}&pagesize=8&page=${page}`;
+  const url = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&authorization=${key}&facet=${wanneerFacet}${branchParam}&pagesize=8`;
 
   try {
     const response = await fetch(url);
