@@ -6,12 +6,11 @@
   <title>Weekagenda OBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: "Arial", sans-serif;
-    }
+    body { font-family: Arial, sans-serif; }
   </style>
 </head>
 <body class="bg-white text-black">
+
   <div class="w-full bg-orange-500 text-white px-10 py-6 flex justify-between items-center">
     <h1 class="text-4xl font-extrabold tracking-tight">
       week<span class="font-normal">agenda</span>
@@ -31,7 +30,6 @@
       const mm = now.getMinutes().toString().padStart(2, '0');
       document.getElementById("time").textContent = `${hh}:${mm}`;
     }
-
     updateTime();
     setInterval(updateTime, 60000);
 
@@ -53,29 +51,26 @@
         const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
         const dagNum = date.getDate().toString().padStart(2, "0");
         const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
-        const tijd = date.toLocaleTimeString("nl-NL", {
-          hour: "2-digit",
-          minute: "2-digit"
-        }).replace(":", ".");
+        const tijd = date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
 
         const row = document.createElement("div");
         row.className =
-          "grid grid-cols-[120px_70px_1fr_80px] items-stretch px-10 py-4 gap-6 border-b border-orange-300";
+          "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 py-6 gap-6 border-b border-orange-300";
 
         row.innerHTML = `
-          <div class="text-[22px] lowercase font-medium flex items-center">${dag}</div>
+          <div class="text-[24px] lowercase font-medium">${dag}</div>
 
-          <div class="flex flex-col justify-center bg-black text-white font-bold w-16 h-full text-center rounded">
-            <div class="text-[22px] leading-none mt-1">${dagNum}</div>
-            <div class="text-[14px] uppercase leading-none mb-1">${maand}</div>
+          <div class="bg-black text-white font-bold w-16 h-24 flex flex-col justify-center items-center rounded leading-none">
+            <div class="text-[26px]">${dagNum}</div>
+            <div class="text-[14px] uppercase mt-0.5">${maand}</div>
           </div>
 
-          <div class="flex flex-col justify-center">
-            <div class="text-[24px] font-extrabold leading-tight">${title}</div>
-            <div class="text-orange-500 text-[18px]">${locatie}</div>
+          <div>
+            <div class="text-[28px] font-extrabold leading-tight">${title}</div>
+            <div class="text-orange-500 text-[18px] mt-1">${locatie}</div>
           </div>
 
-          <div class="text-right font-bold text-[24px] flex items-center justify-end">${tijd}</div>
+          <div class="text-right font-bold text-[26px]">${tijd}</div>
         `;
 
         container.appendChild(row);
@@ -84,5 +79,6 @@
 
     fetchAgenda();
   </script>
+
 </body>
 </html>
