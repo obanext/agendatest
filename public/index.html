@@ -21,7 +21,7 @@
 
     body {
       font-family: AvenirBlack, Arial, sans-serif;
-      overflow: hidden; /* geen scrollen */
+      overflow: hidden; /* geen scroll */
     }
 
     .line-clamp-1 {
@@ -48,10 +48,14 @@
     </div>
   </div>
 
-  <!-- 10px ruimte -->
+  <!-- 10px onder header -->
   <div style="height:10px"></div>
 
+  <!-- AGENDA -->
   <div id="agenda" class="max-w-7xl mx-auto"></div>
+
+  <!-- 10px onderzijde agenda -->
+  <div style="height:10px"></div>
 
   <script>
     function updateTime() {
@@ -62,8 +66,6 @@
     }
     updateTime();
     setInterval(updateTime, 60000);
-
-
 
     async function fetchAgenda() {
       const res = await fetch("/api/agenda");
@@ -82,16 +84,18 @@
         const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
         const dagNum = String(date.getDate()).padStart(2, "0");
         const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
-        const tijd = date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
+        const tijd = date
+          .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
+          .replace(":", ".");
 
-        /* 2px ruimte boven regel (behalve eerste) */
+        /* 2px boven regel (behalve eerste) */
         if (i > 0) {
-          const topSpace = document.createElement("div");
-          topSpace.style.height = "2px";
-          container.appendChild(topSpace);
+          const spaceTop = document.createElement("div");
+          spaceTop.style.height = "2px";
+          container.appendChild(spaceTop);
         }
 
-        /* agendaregel */
+        /* AGENDAREGEL */
         const row = document.createElement("div");
         row.className =
           "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
@@ -114,12 +118,12 @@
 
         container.appendChild(row);
 
-        /* 2px ruimte onder regel */
-        const bottomSpace = document.createElement("div");
-        bottomSpace.style.height = "2px";
-        container.appendChild(bottomSpace);
+        /* 2px onder regel */
+        const spaceBottom = document.createElement("div");
+        spaceBottom.style.height = "2px";
+        container.appendChild(spaceBottom);
 
-        /* divider 1px behalve na de laatste regel */
+        /* Divider 1px (niet na laatste regel) */
         if (i < results.length - 1) {
           const divider = document.createElement("div");
           divider.style.height = "1px";
