@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     branchParam = `&branch=${encodeURIComponent(where)}`;
   }
 
-  const url = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&authorization=${key}&facet=${wanneerFacet}${branchParam}&pagesize=8sort=evt_dt_asc`;
+  const url = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&authorization=${key}&facet=${wanneerFacet}${branchParam}&pagesize=8&sort=evt_dt_asc`;
 
   try {
     const response = await fetch(url);
