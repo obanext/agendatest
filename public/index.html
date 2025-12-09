@@ -21,7 +21,7 @@
 
     body {
       font-family: AvenirBlack, Arial, sans-serif;
-      overflow: hidden; /* geen scroll */
+      overflow: hidden;
     }
 
     .line-clamp-1 {
@@ -35,7 +35,6 @@
 
 <body class="bg-white text-black">
 
-  <!-- HEADER -->
   <div class="w-full px-10 py-6 flex justify-between items-center"
        style="background:#e7a024">
     <h1 class="text-5xl font-black tracking-tight">
@@ -48,14 +47,9 @@
     </div>
   </div>
 
-  <!-- 10px onder header -->
   <div style="height:10px"></div>
 
-  <!-- AGENDA -->
   <div id="agenda" class="max-w-7xl mx-auto"></div>
-
-  <!-- 10px onderzijde agenda -->
-  <div style="height:10px"></div>
 
   <script>
     function updateTime() {
@@ -67,11 +61,22 @@
     updateTime();
     setInterval(updateTime, 60000);
 
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
     async function fetchAgenda() {
-      const res = await fetch("/api/agenda");
+      const when = getQueryParam("when") || "b_thisweek";
+      const where = getQueryParam("where") || "";
+
+      const qs = `/api/agenda?when=${encodeURIComponent(when)}&where=${encodeURIComponent(where)}`;
+
+      const res = await fetch(qs);
       const xmlText = await res.text();
       const xml = new DOMParser().parseFromString(xmlText, "application/xml");
       const results = xml.querySelectorAll("result");
+
       const container = document.getElementById("agenda");
 
       results.forEach((result, i) => {
@@ -88,14 +93,12 @@
           .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
           .replace(":", ".");
 
-        /* 2px boven regel (behalve eerste) */
         if (i > 0) {
           const spaceTop = document.createElement("div");
           spaceTop.style.height = "2px";
           container.appendChild(spaceTop);
         }
 
-        /* AGENDAREGEL */
         const row = document.createElement("div");
         row.className =
           "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
@@ -118,12 +121,10 @@
 
         container.appendChild(row);
 
-        /* 2px onder regel */
         const spaceBottom = document.createElement("div");
         spaceBottom.style.height = "2px";
         container.appendChild(spaceBottom);
 
-        /* Divider 1px (niet na laatste regel) */
         if (i < results.length - 1) {
           const divider = document.createElement("div");
           divider.style.height = "1px";
