@@ -59,24 +59,23 @@
         }).replace(":", ".");
 
         const row = document.createElement("div");
-
         row.className =
-          "grid grid-cols-[95px_55px_1fr_75px] items-center px-10 py-4 gap-4 border-b border-orange-300";
+          "grid grid-cols-[120px_70px_1fr_80px] items-stretch px-10 py-4 gap-6 border-b border-orange-300";
 
         row.innerHTML = `
-          <div class="text-[20px] lowercase font-medium">${dag}</div>
+          <div class="text-[22px] lowercase font-medium flex items-center">${dag}</div>
 
-          <div class="bg-black text-white font-bold w-14 text-center py-0.5 leading-tight rounded">
-            <div class="text-[18px] leading-none">${dagNum}</div>
-            <div class="text-[11px] uppercase leading-none mt-[-2px]">${maand}</div>
+          <div class="flex flex-col justify-center bg-black text-white font-bold w-16 h-full text-center rounded">
+            <div class="text-[22px] leading-none mt-1">${dagNum}</div>
+            <div class="text-[14px] uppercase leading-none mb-1">${maand}</div>
           </div>
 
-          <div>
-            <div class="text-[22px] font-extrabold leading-tight">${title}</div>
-            <div class="text-orange-500 text-[16px] mt-1">${locatie}</div>
+          <div class="flex flex-col justify-center">
+            <div class="text-[24px] font-extrabold leading-tight">${title}</div>
+            <div class="text-orange-500 text-[18px]">${locatie}</div>
           </div>
 
-          <div class="text-right font-bold text-[22px]">${tijd}</div>
+          <div class="text-right font-bold text-[24px] flex items-center justify-end">${tijd}</div>
         `;
 
         container.appendChild(row);
