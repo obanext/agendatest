@@ -107,7 +107,6 @@
     async function fetchAgenda() {
       const when = getQueryParam("when") || "b_thisweek";
       const where = getQueryParam("where") || "";
-
       const qs = `/api/agenda?when=${encodeURIComponent(when)}&where=${encodeURIComponent(where)}`;
 
       const res = await fetch(qs);
