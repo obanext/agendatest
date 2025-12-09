@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const wanneerFacet = `Wanneer(${when})`;
   const branchParam = where !== "" ? `&branch=${encodeURIComponent(where)}` : "";
 
-  const base = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&sort=datum:asc&authorization=${key}&facet=${wanneerFacet}${branchParam}&page=`;
+  const base = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&sort=evt_dt_asc&authorization=${key}&facet=${wanneerFacet}${branchParam}&page=`;
 
   const res1 = await fetch(base + "1");
   const xmlText1 = await res1.text();
