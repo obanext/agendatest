@@ -5,8 +5,7 @@ export default async function handler(req, res) {
   const wanneerFacet = `Wanneer(${when})`;
   const branchParam = where !== "" ? `&branch=${encodeURIComponent(where)}` : "";
 
-  const base = `const base = `https://zoeken.oba.nl/api/v1/search/?authorization=${key}&q=table:evenementen&refine=true&facet=${wanneerFacet}${branchParam}&sort=evt_dt_asc&page=`;
-`;
+  const base = `https://zoeken.oba.nl/api/v1/search/?q=table:evenementen&refine=true&authorization=${key}&facet=${wanneerFacet}${branchParam}&sort=evt_dt_asc&page=`;
 
   const res1 = await fetch(base + "1");
   const xmlText1 = await res1.text();
@@ -30,9 +29,9 @@ export default async function handler(req, res) {
     return da - db;
   });
 
-  const wrapper = `<results>${allResults.map(n => n.outerHTML).join("")}</results>`;
+  const wrapper =
+    `<aquabrowser><results>${allResults.map(n => n.outerHTML).join("")}</results></aquabrowser>`;
 
   res.setHeader("Content-Type", "application/xml");
   res.status(200).send(wrapper);
 }
-
