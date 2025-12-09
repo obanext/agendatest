@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agenda OBA</title>
+  <title>Weekagenda OBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -107,23 +107,14 @@
     async function fetchAgenda() {
       const when = getQueryParam("when") || "b_thisweek";
       const where = getQueryParam("where") || "";
-      const base = `/api/agenda?when=${encodeURIComponent(when)}&where=${encodeURIComponent(where)}&page=`;
 
-      const res1 = await fetch(base + "1");
-      const xmlText1 = await res1.text();
-      const xml1 = new DOMParser().parseFromString(xmlText1, "application/xml");
-      const total = parseInt(xml1.querySelector("count")?.textContent || "0", 10);
+      const qs = `/api/agenda?when=${encodeURIComponent(when)}&where=${encodeURIComponent(where)}`;
 
-      let allResults = [...xml1.querySelectorAll("result")];
-      const pagesNeeded = Math.ceil(total / 8);
+      const res = await fetch(qs);
+      const xmlText = await res.text();
+      const xml = new DOMParser().parseFromString(xmlText, "application/xml");
 
-      for (let p = 2; p <= pagesNeeded; p++) {
-        const res = await fetch(base + p);
-        const xmlText = await res.text();
-        const xml = new DOMParser().parseFromString(xmlText, "application/xml");
-        const results = xml.querySelectorAll("result");
-        results.forEach(r => allResults.push(r));
-      }
+      const allResults = [...xml.querySelectorAll("result")];
 
       buildPages(allResults);
       renderPage(0);
