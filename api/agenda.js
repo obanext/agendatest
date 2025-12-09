@@ -1,4 +1,5 @@
-import { DOMParser } from "@xmldom/xmldom";
+import xmldom from "@xmldom/xmldom";
+const { DOMParser } = xmldom;
 
 export default async function handler(req, res) {
   const key = process.env.OBA_API_KEY;
