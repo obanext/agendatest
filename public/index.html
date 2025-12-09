@@ -22,6 +22,13 @@
     body {
       font-family: AvenirBlack, Arial, sans-serif;
     }
+
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   </style>
 </head>
 
@@ -77,7 +84,8 @@
 
         const row = document.createElement("div");
 
-        row.className = "grid grid-cols-[150px_80px_1fr_100px] items-stretch px-10 gap-6";
+        row.className =
+          "grid grid-cols-[150px_80px_1fr_100px] items-stretch px-10 gap-6";
 
         row.innerHTML = `
           <div class="text-[26px] lowercase flex items-center font-black">
@@ -90,7 +98,7 @@
           </div>
 
           <div class="flex flex-col justify-center overflow-hidden">
-            <div class="text-[28px] font-black leading-tight break-words">
+            <div class="text-[28px] font-black leading-tight line-clamp-1">
               ${title}
             </div>
             <div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">
