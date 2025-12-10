@@ -1,4 +1,4 @@
-import { BRANCHES } from "./vestigingen.js";
+import { BRANCHES } from "./lib/vestigingen.js";
 import { put, list } from "@vercel/blob";
 
 const CACHE_KEY = "agenda-cache.json";
