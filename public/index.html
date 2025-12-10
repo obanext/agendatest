@@ -66,59 +66,57 @@
       container.innerHTML = "";
     }
 
-    function renderPage(page) {
-      const container = document.getElementById("agenda");
-      clearAgenda();
-      if (totalPages === 0) {
-        document.getElementById("pageIndicator").textContent = "0/0";
-        return;
-      }
-      if (page < 1) page = 1;
-      if (page > totalPages) page = totalPages;
-      currentPage = page;
-      document.getElementById("pageIndicator").textContent = `${currentPage}/${totalPages}`;
-      const startIndex = (currentPage - 1) * PAGE_SIZE;
-      const endIndex = startIndex + PAGE_SIZE;
-      const slice = agendaItems.slice(startIndex, endIndex);
-      slice.forEach((item, i) => {
-        const date = new Date(item.start);
-        const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
-        const dagNum = String(date.getDate()).padStart(2, "0");
-        const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
-        const tijd = date
-          .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
-          .replace(":", ".");
-        if (i > 0) {
-          const spaceTop = document.createElement("div");
-          spaceTop.style.height = "2px";
-          container.appendChild(spaceTop);
-        }
-        const row = document.createElement("div");
-        row.className = "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
-        row.innerHTML = `
-          <div class="text-[26px] lowercase">${dag}</div>
-          <div class="bg-black text-white font-black text-center w-16 h-16 flex flex-col justify-center leading-none">
-            <div class="text-[26px]">${dagNum}</div>
-            <div class="text-[14px] uppercase">${maand}</div>
-          </div>
-          <div class="flex flex-col overflow-hidden">
-            <div class="text-[28px] font-black leading-tight line-clamp-1">${item.title}</div>
-            <div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">${item.location}</div>
-          </div>
-          <div class="text-[26px] font-black text-right">${tijd}</div>
-        `;
-        container.appendChild(row);
-        const spaceBottom = document.createElement("div");
-        spaceBottom.style.height = "2px";
-        container.appendChild(spaceBottom);
-        if (i < slice.length - 1) {
-          const divider = document.createElement("div");
-          divider.style.height = "1px";
-          divider.style.background = "#e7a024";
-          container.appendChild(divider);
-        }
-      });
+function renderPage(page) {
+  const container = document.getElementById("agenda");
+  clearAgenda();
+
+  if (totalPages === 0) {
+    document.getElementById("pageIndicator").textContent = "0/0";
+    return;
+  }
+
+  currentPage = Math.max(1, Math.min(page, totalPages));
+  document.getElementById("pageIndicator").textContent = `${currentPage}/${totalPages}`;
+
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const slice = agendaItems.slice(startIndex, startIndex + PAGE_SIZE);
+
+  slice.forEach((item, i) => {
+
+    // Divider only BETWEEN items
+    if (i > 0) {
+      const divider = document.createElement("div");
+      divider.style.height = "1px";
+      divider.style.background = "#e7a024";
+      container.appendChild(divider);
     }
+
+    const date = new Date(item.start);
+    const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
+    const dagNum = String(date.getDate()).padStart(2, "0");
+    const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
+    const tijd = date
+      .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
+      .replace(":", ".");
+
+    const row = document.createElement("div");
+    row.className = "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
+    row.innerHTML = `
+      <div class="text-[26px] lowercase">${dag}</div>
+      <div class="bg-black text-white font-black text-center w-16 h-16 flex flex-col justify-center leading-none">
+        <div class="text-[26px]">${dagNum}</div>
+        <div class="text-[14px] uppercase">${maand}</div>
+      </div>
+      <div class="flex flex-col overflow-hidden">
+        <div class="text-[28px] font-black leading-tight line-clamp-1">${item.title}</div>
+        <div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">${item.location}</div>
+      </div>
+      <div class="text-[26px] font-black text-right">${tijd}</div>
+    `;
+
+    container.appendChild(row);
+  });
+}
 
     function startPaging() {
       if (pageTimer) {
