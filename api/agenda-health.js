@@ -1,4 +1,4 @@
-import { getHealthStatus } from "../lib/sync.js";
+import { getHealthStatusFromCacheOnly } from "../lib/sync.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return;
   }
   try {
-    const health = await getHealthStatus();
+    const health = await getHealthStatusFromCacheOnly();
     res.status(200).json(health);
   } catch {
     res.status(500).json({ error: "Kan health data niet ophalen" });
