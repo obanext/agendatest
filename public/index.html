@@ -135,21 +135,24 @@
       }, 2000);
     }
 
-    async function fetchAgenda() {
-      const where = getQueryParam("where") || "";
-      if (!where) {
-        return;
-      }
-      const qs = `/api/agenda?where=${encodeURIComponent(where)}`;
-      const res = await fetch(qs);
-      if (!res.ok) {
-        return;
-      }
-      const data = await res.json();
-      agendaItems = Array.isArray(data.items) ? data.items : [];
-      totalPages = agendaItems.length > 0 ? Math.ceil(agendaItems.length / PAGE_SIZE) : 0;
-      startPaging();
-    }
+async function fetchAgenda() {
+  const where = getQueryParam("where") || "";
+  if (!where) return;
+
+  const qs = `/api/agenda?where=${encodeURIComponent(where)}`;
+  const res = await fetch(qs);
+  if (!res.ok) return;
+
+  const data = await res.json();
+  agendaItems = Array.isArray(data.items) ? data.items : [];
+
+  totalPages = agendaItems.length > 0 
+    ? Math.ceil(agendaItems.length / PAGE_SIZE) 
+    : 0;
+
+  startPaging();
+}
+
 
     fetchAgenda();
   </script>
