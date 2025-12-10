@@ -5,25 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weekagenda OBA</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
     @font-face {
       font-family: "AvenirBlack";
       src: url("/AvenirBlack.ttf") format("truetype");
       font-weight: 900;
     }
-
     @font-face {
       font-family: "AvenirLight";
       src: url("/AvenirLight.ttf") format("truetype");
       font-weight: 300;
     }
-
     body {
       font-family: AvenirBlack, Arial, sans-serif;
       overflow: hidden;
     }
-
     .line-clamp-1 {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -32,25 +28,18 @@
     }
   </style>
 </head>
-
 <body class="bg-white text-black">
-
-  <div class="w-full px-10 py-6 flex justify-between items-center"
-       style="background:#e7a024">
+  <div class="w-full px-10 py-6 flex justify-between items-center" style="background:#e7a024">
     <h1 class="text-5xl font-black tracking-tight">
       <span class="text-white">week</span><span class="text-black">agenda</span>
     </h1>
-
     <div class="flex gap-6 items-center text-3xl font-black">
       <div id="time" class="text-white"></div>
-      <div class="text-black">1/2</div>
+      <div id="pageIndicator" class="text-black">0/0</div>
     </div>
   </div>
-
   <div style="height:10px"></div>
-
   <div id="agenda" class="max-w-7xl mx-auto"></div>
-
   <script>
     function updateTime() {
       const now = new Date();
@@ -66,66 +55,63 @@
       return url.searchParams.get(name);
     }
 
-    async function fetchAgenda() {
-      const when = getQueryParam("when") || "b_thisweek";
-      const where = getQueryParam("where") || "";
+    const PAGE_SIZE = 8;
+    let agendaItems = [];
+    let currentPage = 1;
+    let totalPages = 0;
+    let pageTimer = null;
 
-      const qs = `/api/agenda?when=${encodeURIComponent(when)}&where=${encodeURIComponent(where)}`;
-
-      const res = await fetch(qs);
-      const xmlText = await res.text();
-      const xml = new DOMParser().parseFromString(xmlText, "application/xml");
-      const results = xml.querySelectorAll("result");
-
+    function clearAgenda() {
       const container = document.getElementById("agenda");
+      container.innerHTML = "";
+    }
 
-      results.forEach((result, i) => {
-        const title = result.querySelector("title")?.textContent || "";
-        const locatie = result.querySelector("locatienaam")?.textContent || "";
-        const startRaw = result.querySelector("datum")?.getAttribute("start");
-        if (!startRaw) return;
-
-        const date = new Date(startRaw);
+    function renderPage(page) {
+      const container = document.getElementById("agenda");
+      clearAgenda();
+      if (totalPages === 0) {
+        document.getElementById("pageIndicator").textContent = "0/0";
+        return;
+      }
+      if (page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      currentPage = page;
+      document.getElementById("pageIndicator").textContent = `${currentPage}/${totalPages}`;
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      const endIndex = startIndex + PAGE_SIZE;
+      const slice = agendaItems.slice(startIndex, endIndex);
+      slice.forEach((item, i) => {
+        const date = new Date(item.start);
         const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
         const dagNum = String(date.getDate()).padStart(2, "0");
         const maand = date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
         const tijd = date
           .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
           .replace(":", ".");
-
         if (i > 0) {
           const spaceTop = document.createElement("div");
           spaceTop.style.height = "2px";
           container.appendChild(spaceTop);
         }
-
         const row = document.createElement("div");
-        row.className =
-          "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
-
+        row.className = "grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6";
         row.innerHTML = `
           <div class="text-[26px] lowercase">${dag}</div>
-
           <div class="bg-black text-white font-black text-center w-16 h-16 flex flex-col justify-center leading-none">
             <div class="text-[26px]">${dagNum}</div>
             <div class="text-[14px] uppercase">${maand}</div>
           </div>
-
           <div class="flex flex-col overflow-hidden">
-            <div class="text-[28px] font-black leading-tight line-clamp-1">${title}</div>
-            <div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">${locatie}</div>
+            <div class="text-[28px] font-black leading-tight line-clamp-1">${item.title}</div>
+            <div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">${item.location}</div>
           </div>
-
           <div class="text-[26px] font-black text-right">${tijd}</div>
         `;
-
         container.appendChild(row);
-
         const spaceBottom = document.createElement("div");
         spaceBottom.style.height = "2px";
         container.appendChild(spaceBottom);
-
-        if (i < results.length - 1) {
+        if (i < slice.length - 1) {
           const divider = document.createElement("div");
           divider.style.height = "1px";
           divider.style.background = "#e7a024";
@@ -134,8 +120,38 @@
       });
     }
 
+    function startPaging() {
+      if (pageTimer) {
+        clearInterval(pageTimer);
+      }
+      if (totalPages <= 1) {
+        renderPage(1);
+        return;
+      }
+      renderPage(1);
+      pageTimer = setInterval(() => {
+        const next = currentPage >= totalPages ? 1 : currentPage + 1;
+        renderPage(next);
+      }, 2000);
+    }
+
+    async function fetchAgenda() {
+      const where = getQueryParam("where") || "";
+      if (!where) {
+        return;
+      }
+      const qs = `/api/agenda?where=${encodeURIComponent(where)}`;
+      const res = await fetch(qs);
+      if (!res.ok) {
+        return;
+      }
+      const data = await res.json();
+      agendaItems = Array.isArray(data.items) ? data.items : [];
+      totalPages = agendaItems.length > 0 ? Math.ceil(agendaItems.length / PAGE_SIZE) : 0;
+      startPaging();
+    }
+
     fetchAgenda();
   </script>
-
 </body>
 </html>
