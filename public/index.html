@@ -26,152 +26,145 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .agenda-row {
+      border-bottom: 1px solid #e7a024;
+    }
   </style>
 </head>
 <body class="bg-white text-black">
-
-<template id="agenda-row-template">
-  <div class="agenda-row flex flex-col">
-    <div class="divider-block hidden">
-      <div style="height:2px"></div>
-      <div style="height:1px; background:#e7a024"></div>
-      <div style="height:2px"></div>
-    </div>
-    <div class="grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6 row-content">
-      <div class="dag text-[26px] lowercase"></div>
-      <div class="datum bg-black text-white font-black text-center w-16 h-16 flex flex-col justify-center leading-none">
-        <div class="dagnum text-[26px]"></div>
-        <div class="maand text-[14px] uppercase"></div>
-      </div>
-      <div class="flex flex-col overflow-hidden">
-        <div class="title text-[28px] font-black leading-tight line-clamp-1"></div>
-        <div class="loc text-[#e7a024] text-[18px]" style="font-family:AvenirLight;"></div>
-      </div>
-      <div class="tijd text-[26px] font-black text-right"></div>
+  <div class="w-full px-10 py-6 flex justify-between items-center" style="background:#e7a024">
+    <h1 class="text-5xl font-black tracking-tight">
+      <span class="text-white">week</span><span class="text-black">agenda</span>
+    </h1>
+    <div class="flex gap-6 items-center text-3xl font-black">
+      <div id="time" class="text-white"></div>
+      <div id="pageIndicator" class="text-black">0/0</div>
     </div>
   </div>
-</template>
+  <div style="height:10px"></div>
+  <div id="agenda" class="max-w-7xl mx-auto"></div>
 
-<div class="w-full px-10 py-6 flex justify-between items-center" style="background:#e7a024">
-  <h1 class="text-5xl font-black tracking-tight">
-    <span class="text-white">week</span><span class="text-black">agenda</span>
-  </h1>
-  <div class="flex gap-6 items-center text-3xl font-black">
-    <div id="time" class="text-white"></div>
-    <div id="pageIndicator" class="text-black">0/0</div>
-  </div>
-</div>
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("time").textContent = hh + ":" + mm;
+    }
+    updateTime();
+    setInterval(updateTime, 60000);
 
-<div style="height:10px"></div>
-<div id="agenda" class="max-w-7xl mx-auto"></div>
-
-<script>
-  function updateTime() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, "0");
-    const mm = String(now.getMinutes()).padStart(2, "0");
-    document.getElementById("time").textContent = `${hh}:${mm}`;
-  }
-  updateTime();
-  setInterval(updateTime, 60000);
-
-  function getQueryParam(name) {
-    const url = new URL(window.location.href);
-    return url.searchParams.get(name);
-  }
-
-  const PAGE_SIZE = 8;
-  let agendaItems = [];
-  let currentPage = 1;
-  let totalPages = 0;
-  let pageTimer = null;
-
-  function clearAgenda() {
-    document.getElementById("agenda").innerHTML = "";
-  }
-
-  function renderPage(page) {
-    const container = document.getElementById("agenda");
-    clearAgenda();
-
-    if (totalPages === 0) {
-      document.getElementById("pageIndicator").textContent = "0/0";
-      return;
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
     }
 
-    currentPage = Math.max(1, Math.min(page, totalPages));
-    document.getElementById("pageIndicator").textContent = `${currentPage}/${totalPages}`;
+    const PAGE_SIZE = 8;
+    let agendaItems = [];
+    let currentPage = 1;
+    let totalPages = 0;
+    let pageTimer = null;
 
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    const slice = agendaItems.slice(startIndex, startIndex + PAGE_SIZE);
+    function clearAgenda() {
+      document.getElementById("agenda").innerHTML = "";
+    }
 
-    const tpl = document.getElementById("agenda-row-template");
+    function renderPage(page) {
+      const container = document.getElementById("agenda");
+      clearAgenda();
 
-    slice.forEach((item, i) => {
-      const clone = tpl.content.cloneNode(true);
-
-      if (i > 0) {
-        clone.querySelector(".divider-block").classList.remove("hidden");
+      if (totalPages === 0) {
+        document.getElementById("pageIndicator").textContent = "0/0";
+        return;
       }
 
-      const date = new Date(item.start);
+      currentPage = Math.max(1, Math.min(page, totalPages));
+      document.getElementById("pageIndicator").textContent =
+        currentPage + "/" + totalPages;
 
-      clone.querySelector(".dag").textContent =
-        date.toLocaleDateString("nl-NL", { weekday: "long" });
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      const slice = agendaItems.slice(startIndex, startIndex + PAGE_SIZE);
 
-      clone.querySelector(".dagnum").textContent =
-        String(date.getDate()).padStart(2, "0");
-
-      clone.querySelector(".maand").textContent =
-        date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase();
-
-      clone.querySelector(".title").textContent = item.title;
-      clone.querySelector(".loc").textContent = item.location;
-
-      clone.querySelector(".tijd").textContent =
-        date
+      slice.forEach(function (item) {
+        const date = new Date(item.start);
+        const dag = date.toLocaleDateString("nl-NL", { weekday: "long" });
+        const dagNum = String(date.getDate()).padStart(2, "0");
+        const maand = date
+          .toLocaleDateString("nl-NL", { month: "short" })
+          .toLowerCase();
+        const tijd = date
           .toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })
           .replace(":", ".");
 
-      container.appendChild(clone);
-    });
-  }
+        const row = document.createElement("div");
+        row.className =
+          "agenda-row grid grid-cols-[140px_70px_1fr_90px] items-center px-10 gap-6 py-3";
 
-  function startPaging() {
-    if (pageTimer) clearInterval(pageTimer);
+        row.innerHTML =
+          '<div class="text-[26px] lowercase">' +
+          dag +
+          '</div>' +
+          '<div class="bg-black text-white font-black text-center w-16 h-16 flex flex-col justify-center leading-none">' +
+          '<div class="text-[26px]">' +
+          dagNum +
+          '</div>' +
+          '<div class="text-[14px] uppercase">' +
+          maand +
+          "</div>" +
+          "</div>" +
+          '<div class="flex flex-col overflow-hidden">' +
+          '<div class="text-[28px] font-black leading-tight line-clamp-1">' +
+          item.title +
+          "</div>" +
+          '<div class="text-[#e7a024] text-[18px]" style="font-family:AvenirLight;">' +
+          item.location +
+          "</div>" +
+          "</div>" +
+          '<div class="text-[26px] font-black text-right">' +
+          tijd +
+          "</div>";
 
-    if (totalPages <= 1) {
-      renderPage(1);
-      return;
+        container.appendChild(row);
+      });
     }
 
-    renderPage(1);
+    function startPaging() {
+      if (pageTimer) {
+        clearInterval(pageTimer);
+      }
 
-    pageTimer = setInterval(() => {
-      const next = currentPage >= totalPages ? 1 : currentPage + 1;
-      renderPage(next);
-    }, 2000);
-  }
+      if (totalPages <= 1) {
+        renderPage(1);
+        return;
+      }
 
-  async function fetchAgenda() {
-    const where = getQueryParam("where") || "";
-    if (!where) return;
+      renderPage(1);
 
-    const res = await fetch(`/api/agenda?where=${encodeURIComponent(where)}`);
-    if (!res.ok) return;
+      pageTimer = setInterval(function () {
+        const next = currentPage >= totalPages ? 1 : currentPage + 1;
+        renderPage(next);
+      }, 2000);
+    }
 
-    const data = await res.json();
-    agendaItems = Array.isArray(data.items) ? data.items : [];
+    async function fetchAgenda() {
+      const where = getQueryParam("where") || "";
+      if (!where) return;
 
-    totalPages = agendaItems.length > 0
-      ? Math.ceil(agendaItems.length / PAGE_SIZE)
-      : 0;
+      const res = await fetch("/api/agenda?where=" + encodeURIComponent(where));
+      if (!res.ok) return;
 
-    startPaging();
-  }
+      const data = await res.json();
+      agendaItems = Array.isArray(data.items) ? data.items : [];
 
-  fetchAgenda();
-</script>
+      totalPages =
+        agendaItems.length > 0
+          ? Math.ceil(agendaItems.length / PAGE_SIZE)
+          : 0;
 
+      startPaging();
+    }
+
+    fetchAgenda();
+  </script>
 </body>
 </html>
