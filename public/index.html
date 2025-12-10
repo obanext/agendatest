@@ -46,7 +46,7 @@
   <div id="agenda" class="max-w-full mx-auto mt-4"></div>
 
   <script>
-    /* ---------------------- CLOCK ---------------------- */
+    
     function updateTime() {
       const now = new Date();
       document.getElementById("time").textContent =
@@ -59,7 +59,6 @@
       return new URL(window.location.href).searchParams.get(n);
     }
 
-    /* ---------------------- PAGINATION ---------------------- */
     const PAGE_SIZE = 8;
     let agendaItems = [];
     let currentPage = 1;
@@ -70,7 +69,6 @@
       document.getElementById("agenda").innerHTML = "";
     }
 
-    /* ---------------------- RENDER PAGE ---------------------- */
     function renderPage(page) {
       const container = document.getElementById("agenda");
       clearAgenda();
@@ -132,8 +130,7 @@
         container.appendChild(row);
       });
     }
-
-    /* ---------------------- AUTO PAGING ---------------------- */
+    
     function startPaging() {
       if (timer) clearInterval(timer);
 
@@ -150,7 +147,6 @@
       }, 8000); // 8 sec
     }
 
-    /* ---------------------- FETCH DATA ---------------------- */
     async function fetchAgenda() {
       const where = getQueryParam("where") || "";
       if (!where) return;
