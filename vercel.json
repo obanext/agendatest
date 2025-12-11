@@ -1,10 +1,1 @@
-{
-  "cron": {
-    "jobs": [
-      {
-        "path": "/api/sync",
-        "schedule": "0 */2 * * *"
-      }
-    ]
-  }
-}
+{}
