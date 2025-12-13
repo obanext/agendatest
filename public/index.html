@@ -147,10 +147,11 @@
     }
 
     async function fetchAgenda() {
-      const where = getQueryParam("where") || "";
+      const where = getQueryParam("where");
       if (!where) return;
 
-      const res = await fetch(`/api/agenda?where=${encodeURIComponent(where)}`);
+      const slug = where.toLowerCase().replace(/\s+/g, "-");
+      const res = await fetch(`/data/${slug}.json`);
       if (!res.ok) return;
 
       const data = await res.json();
