@@ -9,6 +9,22 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Vercel sync
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm ci
+
+      - run: node scripts/generate-data.js
+        env:
+          OBA_API_KEY: ${{ secrets.OBA_API_KEY }}
+
+      - name: Commit data
         run: |
-          curl -fsS https://agendatest.vercel.app/api/sync
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public/data
+          git commit -m "Update agenda data" || echo "No changes"
+          git push
