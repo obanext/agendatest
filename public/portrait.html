@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda OBA (Portrait)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @font-face {
+      font-family: "AvenirBlack";
+      src: url("/AvenirBlack.ttf") format("truetype");
+      font-weight: 900;
+    }
+    @font-face {
+      font-family: "AvenirLight";
+      src: url("/AvenirLight.ttf") format("truetype");
+      font-weight: 300;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+      overflow-x: hidden;
+      background: white;
+      font-family: AvenirBlack, Arial, sans-serif;
+    }
+
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body class="text-black">
+  <div class="w-full px-8 py-6 flex justify-between items-center" style="background:#e7a024">
+    <h1 class="text-5xl font-black tracking-tight">
+      <span class="text-white">week</span><span class="text-black">agenda</span>
+    </h1>
+
+    <div class="flex gap-6 items-center text-3xl font-black">
+      <div id="time" class="text-white"></div>
+    </div>
+  </div>
+
+  <div class="w-full" id="agenda"></div>
+
+  <div class="w-full fixed bottom-0 left-0 right-0 bg-white px-8 py-4 flex justify-end items-center">
+    <div id="pageIndicator" class="text-3xl font-black text-black">0/0</div>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("time").textContent = `${hh}:${mm}`;
+    }
+    updateTime();
+    setInterval(updateTime, 60000);
+
+    function getQueryParam(name) {
+      return new URL(window.location.href).searchParams.get(name);
+    }
+
+    const PAGE_SIZE = 10;
+
+    let agendaItems = [];
+    let currentPage = 1;
+    let totalPages = 0;
+    let pageTimer = null;
+
+    function clearAgenda() {
+      document.getElementById("agenda").innerHTML = "";
+    }
+
+    function formatDagKort(date) {
+      return date.toLocaleDateString("nl-NL", { weekday: "short" }).toLowerCase();
+    }
+
+    function formatMaandKort(date) {
+      return date.toLocaleDateString("nl-NL", { month: "short" }).toLowerCase().replace(".", "");
+    }
+
+    function formatTijd(date) {
+      const t = date.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+      return t.replace(":", ".") + " uur";
+    }
+
+    function renderPage(page) {
+      const container = document.getElementById("agenda");
+      clearAgenda();
+
+      if (totalPages === 0) {
+        document.getElementById("pageIndicator").textContent = "0/0";
+        return;
+      }
+
+      currentPage = Math.max(1, Math.min(page, totalPages));
+      document.getElementById("pageIndicator").textContent = `${currentPage}/${totalPages}`;
+
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      const slice = agendaItems.slice(startIndex, startIndex + PAGE_SIZE);
+
+      slice.forEach(item => {
+        const date = new Date(item.start);
+        const dagKort = formatDagKort(date);
+        const dagNum = String(date.getDate()).padStart(2, "0");
+        const maandKort = formatMaandKort(date);
+        const tijd = formatTijd(date);
+
+        const row = document.createElement("div");
+        row.className = "w-full px-8 py-5";
+
+        row.innerHTML = `
+          <div class="flex items-start gap-6">
+            <div class="w-14 text-3xl font-black lowercase leading-none pt-2">${dagKort}</div>
+
+            <div class="bg-black text-white font-black text-center w-20 h-20 flex flex-col justify-center leading-none shrink-0">
+              <div class="text-[34px]">${dagNum}</div>
+              <div class="text-[14px] uppercase">${maandKort}</div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="text-[34px] font-black leading-tight line-clamp-2">${item.title || ""}</div>
+              <div class="text-[#e7a024] text-[22px] leading-tight mt-1" style="font-family:AvenirLight;">
+                ${item.location || ""}
+              </div>
+              <div class="text-[22px] font-black leading-tight mt-1">${tijd}</div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(row);
+
+        const divider = document.createElement("div");
+        divider.style.height = "2px";
+        divider.style.background = "#e7a024";
+        divider.style.opacity = "0.35";
+        container.appendChild(divider);
+      });
+
+      container.style.paddingBottom = "96px";
+    }
+
+    function startPaging() {
+      if (pageTimer) clearInterval(pageTimer);
+
+      renderPage(1);
+
+      if (totalPages > 1) {
+        pageTimer = setInterval(() => {
+          const next = currentPage >= totalPages ? 1 : currentPage + 1;
+          renderPage(next);
+        }, 8000);
+      }
+    }
+
+    async function fetchAgenda() {
+      const where = getQueryParam("where");
+      if (!where) return;
+
+      const slug = where.toLowerCase().replace(/\s+/g, "-");
+      const res = await fetch(`/data/${slug}.json`);
+      if (!res.ok) return;
+
+      const data = await res.json();
+      agendaItems = Array.isArray(data.items) ? data.items : [];
+
+      totalPages = agendaItems.length > 0
+        ? Math.ceil(agendaItems.length / PAGE_SIZE)
+        : 0;
+
+      startPaging();
+    }
+
+    fetchAgenda();
+  </script>
+</body>
+</html>
