@@ -20,20 +20,14 @@
 
     html, body {
       width: 100%;
-      max-width: 100%;
+      height: 100%;
       padding: 0;
       margin: 0;
-      overflow-x: hidden;
+      overflow: hidden;
       background: white;
       font-family: AvenirBlack, Arial, sans-serif;
     }
 
-    .line-clamp-1 {
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -44,20 +38,21 @@
 </head>
 
 <body class="text-black">
-  <div class="w-full px-8 py-6 flex justify-between items-center" style="background:#e7a024">
-    <h1 class="text-5xl font-black tracking-tight">
-      <span class="text-white">week</span><span class="text-black">agenda</span>
-    </h1>
-
-    <div class="flex gap-6 items-center text-3xl font-black">
-      <div id="time" class="text-white"></div>
+  <div id="app" class="w-full h-screen grid" style="grid-template-rows: auto 1fr auto;">
+    <div class="w-full px-8 py-6 flex justify-between items-center" style="background:#e7a024">
+      <h1 class="text-5xl font-black tracking-tight">
+        <span class="text-white">week</span><span class="text-black">agenda</span>
+      </h1>
+      <div class="flex gap-6 items-center text-3xl font-black">
+        <div id="time" class="text-white"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="w-full" id="agenda"></div>
+    <div id="agenda" class="w-full overflow-hidden"></div>
 
-  <div class="w-full fixed bottom-0 left-0 right-0 bg-white px-8 py-4 flex justify-end items-center">
-    <div id="pageIndicator" class="text-3xl font-black text-black">0/0</div>
+    <div class="w-full bg-white px-8 py-4 flex justify-end items-center">
+      <div id="pageIndicator" class="text-3xl font-black text-black">0/0</div>
+    </div>
   </div>
 
   <script>
@@ -150,8 +145,6 @@
         divider.style.opacity = "0.35";
         container.appendChild(divider);
       });
-
-      container.style.paddingBottom = "96px";
     }
 
     function startPaging() {
