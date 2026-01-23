@@ -2,5 +2,13 @@
   "rewrites": [
     { "source": "/portrait.html/(.*)", "destination": "/portrait.html" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=7200, immutable" }
+      ]
+    }
   ]
 }
