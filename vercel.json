@@ -1,13 +1,31 @@
 {
-  "rewrites": [
-    { "source": "/portrait.html/(.*)", "destination": "/portrait.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
-      "source": "/data/(.*)",
+      "source": "/",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=7200, immutable" }
+        { "key": "Cache-Control", "value": "public, max-age=7200, stale-while-revalidate=86400" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=7200, stale-while-revalidate=86400" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/portrait.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=7200, stale-while-revalidate=86400" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/data/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=7200, stale-while-revalidate=86400" }
       ]
     }
   ]

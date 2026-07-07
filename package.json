@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo \"no build step\"",
+    "build": "node scripts/render-pages.js",
+    "render": "node scripts/render-pages.js",
+    "sync": "node scripts/generate-data.js",
     "start": "vercel dev"
   },
   "dependencies": {}
 }
-
